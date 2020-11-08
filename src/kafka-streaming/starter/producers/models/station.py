@@ -47,7 +47,7 @@ class Station(Producer):
             topic_name,
             key_schema=self.key_schema,
             value_schema=self.value_schema, 
-            num_partitions=5, 
+            num_partitions=1, 
             num_replicas=1 #number of brokers available in the work space
         )
 

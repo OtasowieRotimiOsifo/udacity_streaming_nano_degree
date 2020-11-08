@@ -1,7 +1,7 @@
 """Producer base-class providing common utilites and functionality"""
 import logging
 import time
-
+import socket
 
 #from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
@@ -15,6 +15,7 @@ class Producer:
  
     # Tracks existing topics across all Producer instances
     existing_topics = set(list())
+    client_id = socket.gethostname()
     
     def __init__(
         self,
@@ -31,11 +32,13 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
 
+        
         BROKER_URL = "PLAINTEXT://localhost:9092"
         SCHEMA_REGISTRY_URL = "http://localhost:8081"
         self.broker_properties = {
             "bootstrap.servers": BROKER_URL,
-            "schema.registry.url": SCHEMA_REGISTRY_URL
+            "schema.registry.url": SCHEMA_REGISTRY_URL,
+            "client.id": self.client_id
         }
 
         # If the topic does not already exist, try to create it

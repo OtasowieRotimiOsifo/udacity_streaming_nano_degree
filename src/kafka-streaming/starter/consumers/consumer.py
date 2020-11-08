@@ -35,13 +35,13 @@ class KafkaConsumer:
         
         group_id = topic_name_pattern
         self.broker_properties = {
-            'bootstrap.servers': KafkaConsumer.BROKER_URL,
+            'bootstrap.servers': self.BROKER_URL,
             "group.id": group_id,
             'default.topic.config': {'auto.offset.reset': 'earliest'}
         }
 
         if is_avro is True:
-            self.broker_properties["schema.registry.url"] = KafkaConsumer.SCHEMA_REGISTRY_URL 
+            self.broker_properties["schema.registry.url"] = self.SCHEMA_REGISTRY_URL 
             self.consumer = AvroConsumer(self.broker_properties)
         else:
             self.consumer = Consumer(self.broker_properties)

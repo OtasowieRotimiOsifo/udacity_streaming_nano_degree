@@ -24,7 +24,35 @@ services:
     environment:
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka0:19092,EXTERNAL://localhost:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka0:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+    depends_on:
+    - "zookeeper"
+
+  kafka1:
+    image: confluentinc/cp-kafka:5.2.2
+    ports:
+    - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka1:19093,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+    depends_on:
+    - "zookeeper"
+
+  kafka2:
+    image: confluentinc/cp-kafka:5.2.2
+    ports:
+    - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka2:19094,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
@@ -42,6 +70,8 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: "1"
     depends_on:
     - "kafka0"
+    - "kafka1"
+    - "kafka2"
 
   rest-proxy:
     image: confluentinc/cp-kafka-rest:5.2.2
@@ -54,6 +84,8 @@ services:
       KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081/"
     depends_on:
     - "kafka0"
+    - "kafka1"
+    - "kafka2"
     - "schema-registry"
 
   connect:
@@ -79,6 +111,8 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
     depends_on:
     - "kafka0"
+    - "kafka1"
+    - "kafka2"
     - "schema-registry"
 
   ksql:
@@ -92,6 +126,8 @@ services:
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081/"
     depends_on:
     - "kafka0"
+    - "kafka1"
+    - "kafka2"
     - "schema-registry"
 
   connect-ui:

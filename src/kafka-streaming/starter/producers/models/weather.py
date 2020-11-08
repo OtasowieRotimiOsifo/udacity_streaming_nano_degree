@@ -28,7 +28,6 @@ class Weather(Producer):
     )
 
     rest_proxy_url = "http://localhost:8082"
-
     key_schema = None
     value_schema = None
 
@@ -38,10 +37,10 @@ class Weather(Producer):
     def __init__(self, month):
         
         super().__init__(
-            "chicago.weather", 
+            "org.chicago.cta.chicago.weather.v1", 
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
-            num_partitions=10, 
+            num_partitions=1, 
             num_replicas=1 
         )
 
@@ -80,7 +79,7 @@ class Weather(Producer):
             }
         
         resp = requests.post(
-             f"{Weather.rest_proxy_url}/topics/self.topic_name",
+             f"{self.rest_proxy_url}/topics/self.topic_name",
              
              data=json.dumps(
                {
