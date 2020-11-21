@@ -9,13 +9,11 @@ from tornado import gen
 
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(10)
 
 class KafkaConsumer:
     """Defines the base kafka consumer class"""
 
-    BROKER_URL = "PLAINTEXT://localhost:9092"
-    SCHEMA_REGISTRY_URL = "http://localhost:8081"
     def __init__(
         self,
         topic_name_pattern,
@@ -35,18 +33,16 @@ class KafkaConsumer:
         
         group_id = topic_name_pattern
         self.broker_properties = {
-            'bootstrap.servers': self.BROKER_URL,
+            'bootstrap.servers': "PLAINTEXT://localhost:9092",
             "group.id": group_id,
             'default.topic.config': {'auto.offset.reset': 'earliest'}
         }
 
         if is_avro is True:
-            self.broker_properties["schema.registry.url"] = self.SCHEMA_REGISTRY_URL 
+            self.broker_properties["schema.registry.url"] = "http://localhost:8081"
             self.consumer = AvroConsumer(self.broker_properties)
         else:
             self.consumer = Consumer(self.broker_properties)
-
-        #self.consumer.subscribe(pattern=topic_name_pattern, on_assign=self.on_assign)
         topics = [topic_name_pattern]
         self.consumer.subscribe(topics, on_assign=self.on_assign)
 
@@ -58,6 +54,8 @@ class KafkaConsumer:
               partition.offset = confluent_kafka.OFFSET_BEGINNING
 
         logger.info("partitions assigned for %s", self.topic_name_pattern)
+        for partition in partitions:
+            logger.info("Partition.offset: %s and confluent value: %s", partition.offset, confluent_kafka.OFFSET_BEGINNING) 
         consumer.assign(partitions)
 
     async def consume(self):
@@ -71,7 +69,7 @@ class KafkaConsumer:
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
         try:
-             message = self._consumer.poll(self.consume_timeout)
+             message = self.consumer.poll(self.consume_timeout)
              
              if message is None:
                  return 0;
@@ -82,10 +80,12 @@ class KafkaConsumer:
                  logger.error("Kafka error: %s", message.error().str())
                  raise confluent_kafka.KafkaException(message.error())
         except Exception as e:
-            print('An exception of type: ', type(e), ' occured')
+            logger.debug('Here: An exception of type: %s occured', type(e))
+            logger.debug("%s", e)
             return 0
         except SerializerError as e:
-            print('An exception of type: ', type(e), ' occured')
+            logger.debug('An exception of type: %s occured', type(e))
+            logger.debug("%s", e)
             return 0
 
 

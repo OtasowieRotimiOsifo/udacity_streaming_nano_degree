@@ -6,7 +6,7 @@ from models import Station
 
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(10)
 
 class Line:
     """Defines the Line Model"""
@@ -32,6 +32,7 @@ class Line:
     def _handle_arrival(self, message):
         """Updates train locations"""
         value = message.value()
+        #logger.info("message.value(): %s", value)
         prev_station_id = value.get("prev_station_id")
         prev_dir = value.get("prev_direction")
         if prev_dir is not None and prev_station_id is not None:
@@ -65,16 +66,18 @@ class Line:
     
     def process_message(self, message):
         """Given a kafka message, extract data"""
-    
-        if self.__is_in_topic(message, 'org.chicago.cta.transformed.stations') == True: # Set the conditional correctly to the stations Faust Table
+        #logger.info("message.topic(): %s, message.value(): %s", message.topic(), message.value())   
+        if 'cta.stations.transformed' in message.topic(): # Set the conditional correctly to the stations Faust Table
             try:
                 value = json.loads(message.value())
+                logger.info("json_value: %s", value)
                 self._handle_station(value)
+                logger.info("message.topic=%s", message.topic())
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
-        elif self.__is_in_topic(message, 'cta.station.arrivals') == True: # Set the conditional to the arrival topic
+        elif 'cta.station.arrivals' in message.topic(): # Set the conditional to the arrival topic
             self._handle_arrival(message)
-        elif  self.__is_in_topic(message, 'TURNSTILE_SUMMARY') == True: # Set the conditional to the KSQL Turnstile Summary Topic
+        elif  'TURNSTILE_SUMMARY' in message.topic(): # Set the conditional to the KSQL Turnstile Summary Topic
             json_data = json.loads(message.value())
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)

@@ -37,7 +37,7 @@ class Weather(Producer):
     def __init__(self, month):
         
         super().__init__(
-            "org.chicago.cta.chicago.weather.v1", 
+            "org.chicago.cta.weather", 
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
             num_partitions=1, 
@@ -79,7 +79,7 @@ class Weather(Producer):
             }
         
         resp = requests.post(
-             f"{self.rest_proxy_url}/topics/self.topic_name",
+             f"{self.rest_proxy_url}/topics/{self.topic_name}",
              
              data=json.dumps(
                {

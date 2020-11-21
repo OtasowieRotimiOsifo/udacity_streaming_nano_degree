@@ -5,13 +5,7 @@ import random
 
 import pandas as pd
 
-#import sys
-#import os
-
-#cwd = os.getcwd()
-#sys.path.append(cwd)
-
-#from model.producer import Producer
+from models.producer import Producer
 
 
 logger = logging.getLogger(__name__)

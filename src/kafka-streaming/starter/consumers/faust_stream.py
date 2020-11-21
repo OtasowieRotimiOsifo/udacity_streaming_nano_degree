@@ -7,7 +7,7 @@ import faust
 #from Type import List
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(10)
 
 # Faust will ingest records from Kafka in this format
 #@dataclass(frozen=True)
@@ -37,42 +37,40 @@ app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memor
 
 
 topic = app.topic("org.chicago.cta.stations", value_type=Station)
-out_topic = app.topic("org.chicago.cta.stations.table.v1",
+out_topic = app.topic("org.chicago.cta.stations.transformed",
                       key_type=str,
                       value_type=TransformedStation,
                       partitions=1)
 
 table = app.Table(
-    "org.chicago.cta.stations.table.v1",
+    "org.chicago.cta.stations.transformed",
     default=TransformedStation,
     partitions=1,
     changelog_topic=out_topic,
 )
 
-
+@app.agent(topic)
 async def stations_streams_transformer(stations):
     async for station in stations:
-        transformedStation = TransformedStation()
-        transformedStation.station_id = station.station_id
-        transformedStation.station_name = station.station_name
-        transformedStation.order = station.order
-        
+        logger.info('line = %s', station.station_name)
+        line_loc = None
         if station.red == True:
-            transformedStation.line = 'red'
+            line_loc = 'red'
         elif station.blue == True:
-            transformedStation.line = 'blue'
+            line_loc = 'blue'
         elif station.green == True:
-            transformedStation.line = 'green'
+            line_loc = 'green'
         else:
             logger.debug("No line colour was set for the station")
             continue
+        table[station.station_id] = TransformedStation(
+        station_id = station.station_id,
+        station_name = station.station_name,
+        order = station.order,
+        line = line_loc)
         
-        table[station.station_id] = transformedStation
-        
-        await out_topic.send(key=station.station_name, value=transformedStation)
-
+        #logger.info('line = %s', line_loc)
+        #await out_topic.send(key=station.station_name, value=transformedStation)
 #
-
-
 if __name__ == "__main__":
     app.main()

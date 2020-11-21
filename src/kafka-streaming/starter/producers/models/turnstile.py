@@ -33,7 +33,7 @@ class Turnstile(Producer):
        
 
         
-        topic_name = "org.chicago.cta.turnstiles" 
+        topic_name = "org.chicago.cta.station.turnstile" 
         super().__init__(
             topic_name,
             key_schema=self.key_schema,
@@ -41,7 +41,8 @@ class Turnstile(Producer):
             num_partitions=1,
             num_replicas=1
         )
-        
+       
+        self.topic_name = topic_name
         station.station_name = self.station_name
         self.station = station
         self.turnstile_hardware = TurnstileHardware(self.station)

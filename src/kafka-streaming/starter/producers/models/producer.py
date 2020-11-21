@@ -32,30 +32,28 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
 
-        
-        BROKER_URL = "PLAINTEXT://localhost:9092"
-        SCHEMA_REGISTRY_URL = "http://localhost:8081"
+    
         self.broker_properties = {
-            "bootstrap.servers": BROKER_URL,
-            "schema.registry.url": SCHEMA_REGISTRY_URL,
+            "bootstrap.servers": "PLAINTEXT://localhost:9092",
+            "schema.registry.url": "http://localhost:8081",
             "client.id": self.client_id
         }
 
         # If the topic does not already exist, try to create it
         #print(len(self.existing_topics))
         if self._topic_exists(self.topic_name) == False:
-            print(self.topic_name)
+            #print(self.topic_name)
             ret = self.create_topic()
             if ret == 1:
-                print(len(self.existing_topics))
-                self.existing_topics.add(self.topic_name)
+                #print(len(self.existing_topics))
+                Producer.existing_topics.add(self.topic_name)
     
         self.producer = AvroProducer(self.broker_properties, 
                                      default_key_schema=self.key_schema,
                                      default_value_schema=self.value_schema)
         
     def _topic_exists(self, topic_name: str) -> bool:
-         if topic_name in self.existing_topics:
+         if topic_name in Producer.existing_topics:
             return True
          return False
             
@@ -73,13 +71,13 @@ class Producer:
                     NewTopic(
                         topic=self.topic_name,
                         num_partitions=self.num_partitions,
-                        replication_factor=self.num_replicas,
-                        config={
-                            "cleanup.policy": "delete",
-                            "compression.type": "lz4",
-                            "delete.retention.ms": "2000",
-                            "file.delete.delay.ms": "2000",
-                        }
+                        replication_factor=self.num_replicas
+                        #config={
+                           # "cleanup.policy": "delete",
+                          #  "compression.type": "lz4",
+                          #  "delete.retention.ms": "2000",
+                         #   "file.delete.delay.ms": "2000",
+                        #}
                     )
                 ]
             )

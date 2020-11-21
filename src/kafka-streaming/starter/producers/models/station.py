@@ -7,6 +7,8 @@ from confluent_kafka import avro
 import sys
 import os
 
+from enum import IntEnum
+
 cwd = os.getcwd()
 sys.path.append(cwd)
 
@@ -16,7 +18,7 @@ from models.train import Train
 
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(10)
 
 class Station(Producer):
     """Defines a single station"""
@@ -28,7 +30,7 @@ class Station(Producer):
     def __init__(self, 
                  station_id: int, 
                  name: str, 
-                 color: str, 
+                 color: IntEnum, 
                  direction_a=None, 
                  direction_b=None):
         self.name = name
@@ -42,7 +44,7 @@ class Station(Producer):
 
        
         
-        topic_name = "org.chicago.cta.station.arrivals.v1" 
+        topic_name = "org.chicago.cta.station.arrivals.monitor" 
         super().__init__(
             topic_name,
             key_schema=self.key_schema,
@@ -58,7 +60,7 @@ class Station(Producer):
         self.a_train = None
         self.b_train = None
         self.turnstile = Turnstile(self)
-
+        self.topic_name = topic_name
 
     def run(self, train: Train, 
             direction: str, 
@@ -66,7 +68,7 @@ class Station(Producer):
             prev_direction: str) -> None:
         """Simulates train arrivals at this station"""
         
-        logger.debug("arrival of train: ", train.train_id, " at station: ", self.name)
+        logger.info("arrival of train: " + train.train_id + " at station: " + self.name + " topic name: " + self.topic_name + " line: " + self.color.name)
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
@@ -75,7 +77,7 @@ class Station(Producer):
                 "train_id": train.train_id,
                 "direction": direction,
                 "line": self.color.name,
-                "train_status": train.status,
+                "train_status": train.status.name,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction
             }

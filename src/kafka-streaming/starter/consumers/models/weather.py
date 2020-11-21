@@ -18,7 +18,7 @@ class Weather:
 
     def process_message(self, message):
         """Handles incoming weather data"""
-        weather = self.__get_weather_from_message(message)
+        weather = message.value() #self.__get_weather_from_message(message)
 
         self.temperature = weather.get("temperature")
         self.status = weather.get("status")
