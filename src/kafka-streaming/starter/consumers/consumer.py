@@ -50,12 +50,12 @@ class KafkaConsumer:
         """Callback for when topic assignment takes place"""
         
         for partition in partitions:
-          if self.offset_earliest == True:
-              partition.offset = confluent_kafka.OFFSET_BEGINNING
+            if self.offset_earliest == True:
+                partition.offset = confluent_kafka.OFFSET_BEGINNING
 
-        logger.info("partitions assigned for %s", self.topic_name_pattern)
-        for partition in partitions:
-            logger.info("Partition.offset: %s and confluent value: %s", partition.offset, confluent_kafka.OFFSET_BEGINNING) 
+        #logger.info("partitions assigned for %s", self.topic_name_pattern)
+        #for partition in partitions:
+            #logger.info("Partition.offset: %s and confluent value: %s", partition.offset, confluent_kafka.OFFSET_BEGINNING) 
         consumer.assign(partitions)
 
     async def consume(self):

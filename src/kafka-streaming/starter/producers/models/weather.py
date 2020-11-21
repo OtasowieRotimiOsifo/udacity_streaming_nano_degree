@@ -18,7 +18,7 @@ from models.producer import Producer
 
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(10)
 
 class Weather(Producer):
     """Defines a simulated weather model"""
@@ -71,7 +71,7 @@ class Weather(Producer):
 
     def run(self, month):
         self._set_weather(month)
-        headers = {"Content-Type": "application/vnd.kafka.avro.v2+json"}
+        headers_loc = {"Content-Type": "application/vnd.kafka.avro.v2+json"}
         key={"timestamp": self.time_millis()}
         value={
                 'temperature': self.temp,
@@ -92,9 +92,8 @@ class Weather(Producer):
                         }
                    ]
                 }
-            ),
-             
-            headers=headers
+            ),   
+            headers=headers_loc
         )
         
         resp.raise_for_status()

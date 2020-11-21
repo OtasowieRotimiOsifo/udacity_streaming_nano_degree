@@ -29,10 +29,7 @@ class Turnstile(Producer):
             .replace("-", "_")
             .replace("'", "")
         )
-   
-       
-
-        
+                
         topic_name = "org.chicago.cta.station.turnstile" 
         super().__init__(
             topic_name,
@@ -65,4 +62,3 @@ class Turnstile(Producer):
         except Exception as e:
             logger.fatal("An exception of type: ", type(e), " occurred")
             raise(e)
-            

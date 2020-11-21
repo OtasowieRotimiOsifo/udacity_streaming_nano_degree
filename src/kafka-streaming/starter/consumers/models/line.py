@@ -70,9 +70,9 @@ class Line:
         if 'cta.stations.transformed' in message.topic(): # Set the conditional correctly to the stations Faust Table
             try:
                 value = json.loads(message.value())
-                logger.info("json_value: %s", value)
+                #logger.info("json_value: %s", value)
                 self._handle_station(value)
-                logger.info("message.topic=%s", message.topic())
+                #logger.info("message.topic=%s", message.topic())
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
         elif 'cta.station.arrivals' in message.topic(): # Set the conditional to the arrival topic

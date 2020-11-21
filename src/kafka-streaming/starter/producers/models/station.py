@@ -41,15 +41,13 @@ class Station(Producer):
             .replace("-", "_")
             .replace("'", "")
         )
-
-       
         
         topic_name = "org.chicago.cta.station.arrivals.monitor" 
         super().__init__(
             topic_name,
             key_schema=self.key_schema,
             value_schema=self.value_schema, 
-            num_partitions=1, 
+            num_partitions=1, #single node broker
             num_replicas=1 #number of brokers available in the work space
         )
 

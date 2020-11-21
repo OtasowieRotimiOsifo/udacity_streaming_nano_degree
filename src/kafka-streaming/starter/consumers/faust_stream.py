@@ -23,7 +23,6 @@ class Station(faust.Record):
     blue: bool
     green: bool
 
-
 # Faust will produce records to Kafka in this format
 #@dataclass(frozen=True)
 class TransformedStation(faust.Record):
@@ -32,9 +31,7 @@ class TransformedStation(faust.Record):
     order: int
     line: str
 
-
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
-
 
 topic = app.topic("org.chicago.cta.stations", value_type=Station)
 out_topic = app.topic("org.chicago.cta.stations.transformed",
@@ -52,7 +49,7 @@ table = app.Table(
 @app.agent(topic)
 async def stations_streams_transformer(stations):
     async for station in stations:
-        logger.info('line = %s', station.station_name)
+        #logger.info('line = %s', station.station_name)
         line_loc = None
         if station.red == True:
             line_loc = 'red'
@@ -63,14 +60,12 @@ async def stations_streams_transformer(stations):
         else:
             logger.debug("No line colour was set for the station")
             continue
-        table[station.station_id] = TransformedStation(
-        station_id = station.station_id,
-        station_name = station.station_name,
-        order = station.order,
-        line = line_loc)
+        table[station.station_id] = TransformedStation(station_id = station.station_id,
+                                                       station_name = station.station_name,
+                                                       order = station.order,
+                                                       line = line_loc)
         
         #logger.info('line = %s', line_loc)
-        #await out_topic.send(key=station.station_name, value=transformedStation)
 #
 if __name__ == "__main__":
     app.main()

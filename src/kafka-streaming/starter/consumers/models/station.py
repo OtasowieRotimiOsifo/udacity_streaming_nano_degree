@@ -21,7 +21,7 @@ class Station:
     @classmethod
     def from_message(cls, value):
         """Given a Kafka Station message, creates and returns a station"""
-        logger.info("value: %s", value)
+        #logger.info("value: %s", value)
         return Station(value["station_id"], value["station_name"], value["order"])
 
     def handle_departure(self, direction):
@@ -34,7 +34,7 @@ class Station:
 
     def handle_arrival(self, direction, train_id, train_status):
         """Unpacks arrival data"""
-        logger.info("train_id: %s", train_id)
+        #logger.info("train_id: %s", train_id)
         status_dict = {"train_id": train_id, "status": train_status.replace("_", " ")}
         if direction == "a":
             self.dir_a = status_dict
@@ -43,5 +43,5 @@ class Station:
 
     def process_message(self, json_data):
         """Handles arrival and turnstile messages"""
-        logger.info("json_data: %s", json_data)
+        #logger.info("json_data: %s", json_data)
         self.num_turnstile_entries = json_data["COUNT"]

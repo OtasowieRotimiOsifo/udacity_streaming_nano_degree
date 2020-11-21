@@ -22,7 +22,7 @@ class Producer:
         topic_name,
         key_schema,
         value_schema=None,
-        num_partitions=1,
+        num_partitions=1, #single node broker?
         num_replicas=1,
     ):
         """Initializes a Producer object with basic settings"""
@@ -31,8 +31,7 @@ class Producer:
         self.value_schema = value_schema
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
-
-    
+        
         self.broker_properties = {
             "bootstrap.servers": "PLAINTEXT://localhost:9092",
             "schema.registry.url": "http://localhost:8081",

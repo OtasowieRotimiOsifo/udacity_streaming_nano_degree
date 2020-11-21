@@ -100,6 +100,5 @@ def run_server():
         for consumer in consumers:
             consumer.close()
 
-
 if __name__ == "__main__":
     run_server()

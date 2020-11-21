@@ -15,7 +15,6 @@ KSQL_URL = "http://localhost:8088"
 
 #
 # here document in python
-
 KSQL_STATEMENT = """
 CREATE TABLE turnstile (
   station_id INT, 
@@ -50,10 +49,8 @@ def execute_statement():
         ),
     )
 
-
     # Ensure that a 2XX status code was returned
     resp.raise_for_status()
-
 
 if __name__ == "__main__":
     execute_statement()
